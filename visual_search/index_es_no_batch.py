@@ -77,9 +77,12 @@ def create_doc(im_src, tag, coords, fea_arr, fea_bin_arr):
     f_bin.arr.extend(fea_bin_arr)
     obj_bin_str = b64encode(f_bin.SerializeToString())
     obj_str = b64encode(f.SerializeToString())
-    doc['sigs'] = obj_str
-    doc['bin_sigs'] = obj_bin_str
-    doc['im_src'] = im_src
+   # doc['sigs'] = obj_str
+    doc['name'] = im_src
+    doc['image'] = obj_str
+    print len(obj_str)
+    #doc['bin_sigs'] = obj_bin_str
+    #doc['im_src'] = im_src
     doc['cl'] = tag
     return doc
 

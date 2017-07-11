@@ -1,0 +1,7 @@
+HTTP/1.1 404 Not Found
+es.resource.type: index_or_alias
+es.resource.id: img_data
+es.index: img_data
+Content-Type: application/json; charset=UTF-8
+Content-Length: 315
+

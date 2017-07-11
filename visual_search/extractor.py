@@ -279,8 +279,8 @@ if __name__ == '__main__':
     total_boxes,landmark,numboxes= extractor.getface_dlib(img,landmark_mask)
     print numboxes
 
-    cv2.imshow("test", img)
-    cv2.waitKey(0)
+    #cv2.imshow("test", img)
+    #cv2.waitKey(0)
     #extractor.get_tags(img)
     import pdb;
    # pdb.set_trace()

@@ -5,7 +5,7 @@ from flask import Flask
 from flask import request, jsonify, \
     send_from_directory
 
-import base64
+from base64 import b64encode
 from elasticsearch import Elasticsearch
 
 from extractor import Extractor
@@ -100,40 +100,17 @@ def get_tags():
 
 QUERY = """
 {
-"_source": ["im_src", "cl", "coords"],
-"query": {
-  "function_score" : {
-    "query" : {
-      "match_all" : {
-        "boost" : 1.0
-      }
-    },
-    "functions" : [
-      {
-        "filter" : {
-          "match_all" : {
-            "boost" : 1.0
-          }
-        },
-        "script_score" : {
-          "script" : {
-            "inline" : "cosine_score",
-            "lang" : "native",
-            "params" : {
-              "f" : "sigs",
-              "fea" : [##fea##],
-              "verbose" : true
-            }
-          }
-        }
-      }
-    ],
-    "score_mode" : "sum",
-    "boost_mode" : "replace",
-    "max_boost" : 3.4028235E38,
-    "boost" : 1.0
-  }
-}
+	"sort": [{"_score": "desc"}],
+	"fields": ["name"],
+	"query": {
+		"image": {
+			"image": {
+				"image": "##fea##",
+				"feature": "CEDD",
+				"hash": "LSH"
+			}
+		}
+	}
 }
 """
 
@@ -159,12 +136,19 @@ def search():
     # fea = extractor.binarize_fea(fea)
     # fea_str = ','.join([str(int(t)) for t in fea])
     for fea_i in fea:
-        fea_str = ','.join([str(t) for t in fea_i])
+        ar = []
+        encode_fea = ImFea()
+        encode_fea.f.extend(fea_i)
+        ar.append(encode_fea)
+        f = ImFeaArr()
+        f.arr.extend(ar)
+        fea_str = b64encode(f.SerializeToString())
         query = QUERY.replace('##fea##', fea_str)
         queries.append(query)
     print "###############"
     print(queries)
     print "###############"
+    print len(fea_str)
     for query_i in queries:
         result = es.search(index='img_data', doc_type='obj', body=query_i)
         results.append(result)

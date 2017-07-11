@@ -51,8 +51,8 @@ class FaceDetector_mt(object):
     def recognise_cl(self,img):
         #img = (np.float32(img)-127.5)*0.0078125
         im_in = cv2.resize(img, (96, 112), interpolation=cv2.INTER_NEAREST)
-        cv2.imshow("resized", im_in)
-        cv2.waitKey(0)
+        #cv2.imshow("resized", im_in)
+        #cv2.waitKey(0)
         #im_in = img[8:120,16:112]
         im_in2 = cv2.flip(im_in,1)
         #self.clnet.blobs['data'].reshape(1, 3, 112, 96)
