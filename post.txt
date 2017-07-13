@@ -1,0 +1,18 @@
+curl -XPUT 'localhost:9200/img_data/obj/_mapping' -d '{
+    "obj": {
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "image": {
+                "type": "image",
+                "feature": {
+                    "CEDD": {
+                        "hash": "LSH"
+                    }
+                }
+            }
+        }
+    }
+}'
+

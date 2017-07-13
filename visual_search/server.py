@@ -7,6 +7,14 @@ from flask import request, jsonify, \
 
 from base64 import b64encode
 from elasticsearch import Elasticsearch
+import numpy as np
+from nearpy import Engine
+from nearpy.storage import RedisStorage
+from nearpy.hashes import RandomBinaryProjections
+from redis import Redis
+import time
+from nearpy.filters import NearestFilter, UniqueFilter
+from nearpy.distances import CosineDistance,EuclideanDistance
 
 from extractor import Extractor
 from lib.utils.im_util import read_img_blob
@@ -118,7 +126,24 @@ QUERY = """
 @app.route("/search", methods=['GET', 'POST'])
 def search():
     """get tags corresponding to a image"""
-    queries= []
+    redis_object = Redis(host='10.211.55.6', port=6379, password="123456", db=0)
+    redis_storage = RedisStorage(redis_object)
+
+    # Get hash config from redis
+    config = redis_storage.load_hash_configuration('rbp')
+    dimension = 1024
+    if config is None:
+        # Config is not existing, create hash from scratch, with 10 projections
+        print "Noet exit"
+        exit()
+        # lshash = RandomBinaryProjections('rpb', 10)
+    else:
+        # Config is existing, create hash with None parameters
+        lshash = RandomBinaryProjections(None, None)
+        # Apply configuration loaded from redis
+        lshash.apply_config(config)
+    engine = Engine(dimension, lshashes=[lshash], distance=EuclideanDistance(), vector_filters=[NearestFilter(10)],
+                    storage=redis_storage)
     results = []
     if not 'img' in request.files:
         raise InvalidUsage('parameter "img" is missing', status_code=410)
@@ -136,40 +161,21 @@ def search():
     # fea = extractor.binarize_fea(fea)
     # fea_str = ','.join([str(int(t)) for t in fea])
     for fea_i in fea:
-        ar = []
-        encode_fea = ImFea()
-        encode_fea.f.extend(fea_i)
-        ar.append(encode_fea)
-        f = ImFeaArr()
-        f.arr.extend(ar)
-        fea_str = b64encode(f.SerializeToString())
-        query = QUERY.replace('##fea##', fea_str)
-        queries.append(query)
-    print "###############"
-    print(queries)
-    print "###############"
-    print len(fea_str)
-    for query_i in queries:
-        result = es.search(index='img_data', doc_type='obj', body=query_i)
-        results.append(result)
+        results.append(engine.neighbours(np.array(fea_i)))
+
     rs = []
     for result_i in results:
-        if 'hits' in result_i and \
-                        'hits' in result['hits']:
+        for result_j in result_i:
+            o = {}
+            o['score'] = result_j[2]
             # distinct
             all_imgs = set([])
-            hits = result_i['hits']['hits']
-            for hit in hits:
-                o = hit['_source']
-                o['score'] = hit['_score']
-                print o['score']
-                print o['im_src']
-                # update im_src
-                im_src = '/img/{}'.format(o['im_src'])
-                if not im_src in all_imgs:
-                    o['im_src'] = im_src
-                    all_imgs.add(im_src)
-                    rs.append(o)
+            o['im_src'] = result_j[1]
+            im_src = '/img/{}'.format(o['im_src'])
+            if not im_src in all_imgs:
+                o['im_src'] = im_src
+                all_imgs.add(im_src)
+                rs.append(o)
     print rs
     out = {}
     out['hits'] = rs

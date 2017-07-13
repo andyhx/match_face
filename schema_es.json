@@ -1,14 +1,12 @@
 { "settings" : {
         "index" : {
-            "number_of_shards" : 5, 
+            "number_of_shards" : 1, 
             "number_of_replicas" : 0
         }
   },
   "mappings": {
     "obj": {
       "properties": {
-	"name": { "type": "string"},
-	"image": {"type": "image", "feature": {"CEDD": {"hash": "LSH"}}},
         "sigs": { "type": "binary","doc_values": true},
         "bin_sigs": { "type": "binary","doc_values": true},
         "im_src": { "type": "string", "index": "not_analyzed"},

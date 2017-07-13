@@ -197,7 +197,7 @@
 								(function(i) {
 									var img = $('<img class="item">'); //Equivalent: $(document.createElement('img'))
 									img.attr('src', hits[i]['im_src']);
-									var boxes = hits[i]['coords']
+									//var boxes = hits[i]['coords']
 									//img.appendTo('#result');
 									fabric.Image.fromURL(hits[i]['im_src'], function(oImg) {
 										var w = oImg.width;
@@ -225,20 +225,20 @@
 										canvas.add(oImg);
 
 										//insert box
-										for (var j = 0; j < boxes.length; j++) {
-											var b = boxes[j];
-											var c = b['c']
-											var r = new fabric.Rect({
-												left: imOffsetLeft + c[0] * scale,
-												top: imOffsetTop + c[1] * scale,
-												width: (c[2] - c[0]) * scale,
-												height: (c[3] - c[1]) * scale,
-												stroke: 'red',
-												selectable: false,
-												fill: 'rgba(0, 0, 0, 0)'
-											});
-											canvas.add(r)
-										}
+										//for (var j = 0; j < boxes.length; j++) {
+										//	var b = boxes[j];
+										//	var c = b['c']
+										//	var r = new fabric.Rect({
+										//		left: imOffsetLeft + c[0] * scale,
+										//		top: imOffsetTop + c[1] * scale,
+										//		width: (c[2] - c[0]) * scale,
+										//		height: (c[3] - c[1]) * scale,
+										//		stroke: 'red',
+										//		selectable: false,
+										//		fill: 'rgba(0, 0, 0, 0)'
+										//	});
+										//	canvas.add(r)
+										//}
 									});
 								}(i));
 

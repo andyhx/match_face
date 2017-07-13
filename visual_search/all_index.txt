@@ -1,0 +1,17 @@
+curl -XPUT 'localhost:9200/<index_name>/<type_name>/_mapping' -d '{
+    "<type_name>": {
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "image": {
+                "type": "image",
+                "feature": {
+                    "CEDD": {
+                        "hash": "LSH"
+                    }
+                }
+            }
+        }
+    }
+}'
